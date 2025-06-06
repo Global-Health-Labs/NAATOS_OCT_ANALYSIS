@@ -1,3 +1,5 @@
 {
-    "jupyter.notebookFileRoot": "${workspaceFolder}"
+    "jupyter.notebookFileRoot": "${workspaceFolder}",
+    "debugpy.debugJustMyCode": false,
+    "workbench.colorTheme": "Default Dark Modern"
 }
