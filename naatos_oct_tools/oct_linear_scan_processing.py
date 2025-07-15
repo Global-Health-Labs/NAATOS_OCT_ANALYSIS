@@ -193,24 +193,33 @@ def process_along_strip_data_frame(df : pd.DataFrame):
     else:
         slice_centers = df['slice'];
 
-    # Wax Thickness
-    wax_top = df['wax_top_seed_candidate_px'].apply(lambda x: x[0]);
-    #wax_top = dfstepA.loc[final_wax_centers]['pixel_depth_strip_top']
-    wax_bot = df['pixel_depth_strip_top']+df['final_wax_bot_subset_px']
-    wax_thickness = wax_bot-wax_top
-
-    df['wax_thickness1'] = wax_bot-wax_top;
-    df['wax_thickness2'] = wax_bot-df['pixel_depth_strip_top'];
-    df['wax_width_px'] = df['px_wax_transverse_edges'].apply(lambda x: np.diff(x)[0]);
+    # # Wax Thickness
     df['wax_top'] = df['wax_top_seed_candidate_px'].apply(lambda x: x[0]);
+    df['wax_thickness'] = df['seg_bbox-3'];
+    df['wax_thickness1'] = df['wax_thickness'];
+    df['wax_thickness2'] = df['wax_thickness'];
+    df['wax_width_px'] = df['seg_bbox-2'] - df['seg_bbox-0'];
+
+    # df['wax_thickness1'] = wax_bot-wax_top;
+    # df['wax_thickness2'] = wax_bot-df['pixel_depth_strip_top'];
+    # df['wax_width_px'] = df['px_wax_transverse_edges'].apply(lambda x: np.diff(x)[0]);
+    # df['wax_top'] = df['wax_top_seed_candidate_px'].apply(lambda x: x[0]);
 
 
-    df['seg_area'] = df['area'];
-    df['seg_area_filled'] = df['area_filled'];
-    df['seg_area_holes'] = df['area_filled']-df['area'];
+    # df['seg_area'] = df['area'];
+    # df['seg_area_filled'] = df['area_filled'];
+    # df['seg_area_holes'] = df['area_filled']-df['area'];
 
-    df['seg_area_to_areafilled'] = df['area']/df['seg_area_filled'];
-    df['seg_area_to_areaconvex'] = df['area']/df['area_convex'];
-    df['seg_areafilled_to_areaconvex'] = df['seg_area_filled']/df['area_convex'];
+    # df['seg_area_to_areafilled'] = df['area']/df['seg_area_filled'];
+    # df['seg_area_to_areaconvex'] = df['area']/df['area_convex'];
+    # df['seg_areafilled_to_areaconvex'] = df['seg_area_filled']/df['area_convex'];
+
+    # area calcs
+    df['seg_area_holes'] = df['seg_area_filled']-df['seg_area'];
+
+    # area ratios
+    df['seg_r_area_to_areafilled'] = df['seg_area']/df['seg_area_filled'];
+    df['seg_r_area_to_areaconvex'] = df['seg_area']/df['seg_area_convex'];
+    df['seg_r_areafilled_to_areaconvex'] = df['seg_area_filled']/df['seg_area_convex'];
 
     return df;

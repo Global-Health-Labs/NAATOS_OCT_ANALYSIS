@@ -93,6 +93,18 @@ class OctFile:
     image: Image
     cfg_oct_xml: object
     cfg_oct_probe : dict
+    vol_dimensions: np.ndarray
+    vol_spacing_mm: np.ndarray
+
+    def _make_sitkvol(self):
+        scalars = self.scalars;
+        vol_dimensions = self.vol_dimensions;
+        vol_spacing_mm = self.vol_spacing_mm;
+
+        sitkvol = sitk.GetImageFromArray( scalars.reshape(vol_dimensions,order='F').transpose((2,1,0)) , isVector=False); # sitk uses opposite indexing
+        sitkvol.SetSpacing(vol_spacing_mm);
+
+        return sitkvol;
 
 ######
 ######
@@ -155,7 +167,7 @@ def _read_oct(file_oct,make_pv_volume=False,make_sitk_volume=False):
     
     # make simpleitk volume image
     if(make_sitk_volume):
-        sitkvol = sitk.GetImageFromArray( scalars.reshape(vol_dimensions,order='F').transpose((2,1,0)) , isVector=False); # sitk uses opposite indexing
+        sitkvol = sitk.GetImageFromArrayView( scalars.reshape(vol_dimensions,order='F').transpose((2,1,0)) , isVector=False); # sitk uses opposite indexing
         sitkvol.SetSpacing(vol_spacing_mm);
     else:
         sitkvol = None;
@@ -170,6 +182,8 @@ def _read_oct(file_oct,make_pv_volume=False,make_sitk_volume=False):
         image = newimg,
         cfg_oct_xml = cfg_oct_xml,
         cfg_oct_probe = cfg_oct_probe,
+        vol_dimensions = vol_dimensions,
+        vol_spacing_mm = vol_spacing_mm,
     );
 
 
@@ -256,6 +270,11 @@ class OCT_Study_Folder():
         return self.study_info['study_num_vtk_files'];
 
     ###==== METHODS
+    def openWindowsExplorerToProcessedFolder(self):
+        import subprocess
+        print('Opening explorer to',str(self.folder_study_processed));
+        subprocess.Popen(r'explorer /select,"{:s}"'.format(str(self.folder_study_processed)));
+
     def resultsCheck(self):
         """Check what type of result output artifacts exist in the folder (these would be computationally intensive to regenerate)
 
@@ -268,8 +287,8 @@ class OCT_Study_Folder():
         # results['figoutmp4_stepA'] = any([re.match(r'figureoutput_.*_stepA\.mp4',l.name) is not None for l in self.folder_study_processed.iterdir()]);
         # results['figoutmp4_stepB'] = any([re.match(r'figureoutput_.*_stepB\.mp4',l.name) is not None for l in self.folder_study_processed.iterdir()]);
         results['figoutmp4_stepA'] = any([re.match(r'figout.*_stepA\.mp4',l.name) is not None for l in self.folder_study_processed.iterdir()]);
-        results['figoutmp4_stepB'] = any([re.match(r'figout.*_stepB\.mp4',l.name) is not None for l in self.folder_study_processed.iterdir()]);
-        results['figoutmp4_mazetest'] = any([re.match(r'figout_post_maze_test.mp4',l.name) is not None for l in self.folder_study_processed.iterdir()]);
+        #results['figoutmp4_stepB'] = any([re.match(r'figout.*_stepB\.mp4',l.name) is not None for l in self.folder_study_processed.iterdir()]);
+        #results['figoutmp4_mazetest'] = any([re.match(r'figout_post_maze_test.mp4',l.name) is not None for l in self.folder_study_processed.iterdir()]);
         if( (self.folder_study_processed/'along_strip_data_extracted.hdf5').exists() ):
             with pd.HDFStore(self.folder_study_processed/'along_strip_data_extracted.hdf5',mode='r') as store:
                 results['along_strip_data_extracted'] = store.keys()

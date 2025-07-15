@@ -26,7 +26,7 @@ class OCTMultiStripMetricViewer(pn.viewable.Viewer):
     plotstyle = param.Selector(objects=['scatterVsLength','boxplotOfStrip'],default='boxplotOfStrip');
 
     metrics = param.ListSelector(
-        default=['wax_width_px','seg_area_to_areafilled','num_paths'],
+        default=['wax_width_px','seg_r_area_to_areafilled','num_paths'],
         objects=list(metrics.keys())
     );
 
