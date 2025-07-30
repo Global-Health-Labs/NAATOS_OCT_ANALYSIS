@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 import itertools
+from functools import partial
 import numpy as np
 
 import naatos_oct_tools.thorlabs_oct_file_reading
@@ -68,6 +69,8 @@ class _VIEWER_images_bounds(_VIEWER_images_base):
                 #self.showimage_from_dropdown,
                 self.showimage_all_in_column,
             ),
+            height=900,
+            scroll=True,
         )
 
 class _VIEWER_images_crossovers(_VIEWER_images_base):
@@ -83,6 +86,8 @@ class _VIEWER_images_crossovers(_VIEWER_images_base):
                 self.showimage_from_dropdown,
                 #self.showimage_all_in_column,
             ),
+            height=900,
+            scroll=True,
         )
 
 
@@ -400,10 +405,19 @@ class OCTSingleStripMetricViewer(pn.viewable.Viewer):
         buttFolder.on_click( lambda event: self._open_explorer_window() );
         possible_video_link_files = ['figout_stepA.mp4','figout_stepB.mp4','figout_post_maze_test.mp4']
         video_buttons = [];
+        # def create_a_video_button(video_filename):
+        #     button = pn.widgets.Button(name=video_filename);
+        #     button.on_click( lambda event: self._launch_study_vlc(filename=filename) );
         for filename in possible_video_link_files:
             if((self.octstudy.folder_study_processed/filename).exists()):
+                print('Adding video-playback button for',filename);
                 button = pn.widgets.Button(name=filename);
-                button.on_click( lambda event: self._launch_study_vlc(filename=filename) );
+                
+                # This triggered a bug due to LATE CLOSURE of lambda functions
+                #button.on_click( lambda event: self._launch_study_vlc(filename=filename) );
+                # fix using partial()
+                button.on_click( partial( lambda event, video_filename: self._launch_study_vlc(filename=video_filename) , video_filename=filename) );
+
                 video_buttons.append(button);
         # buttA = pn.widgets.Button(name='VideoA');
         # buttA.on_click( lambda event: self._launch_study_vlc(filename='figout_stepA.mp4') );
