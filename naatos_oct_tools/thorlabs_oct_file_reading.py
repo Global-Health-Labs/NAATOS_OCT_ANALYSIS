@@ -410,6 +410,16 @@ class OCT_Study_Folder():
 
             return mergedvol;
 
+    def generate_merged_vdvol_raw(self):
+        # Merge strip OCT data into one big volume
+        mergedvol = self.pv_stack_all_volumes_along_dimension();
+        
+        # Rescale and cast to unit8_t
+        # make vedo volume
+        vdvol = vedo.Volume(mergedvol);
+        
+        return vdvol;
+
     def generate_merged_vdvol_and_rescaled(self,oct_scalar_min,oct_scalar_max):
         # Merge strip OCT data into one big volume
         mergedvol = self.pv_stack_all_volumes_along_dimension();
